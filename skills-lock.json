@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "ffmpeg": {
+      "source": "calesthio/OpenMontage",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/ffmpeg/SKILL.md",
+      "computedHash": "51fa05bc18bb2691e622aefd1d8ec6d4d96a9e9c44cdf599003c9d6003d11a07"
+    },
+    "remotion-best-practices": {
+      "source": "calesthio/OpenMontage",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/remotion-best-practices/SKILL.md",
+      "computedHash": "9851afb52e1b892c43b2af973bda1776ce01fedfdfe704e0cfd70069a3a9c300"
+    },
+    "video-edit": {
+      "source": "calesthio/OpenMontage",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/video-edit/SKILL.md",
+      "computedHash": "c392bc176158a9d0deed541752fc0fe5bcccd910aa3568beca5741ec2b2827e0"
+    }
+  }
+}
