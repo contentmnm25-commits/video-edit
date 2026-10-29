@@ -95,7 +95,10 @@ export default async function DashboardPage() {
                   {!summary.length && (
                     <tr>
                       <td colSpan={6} className="px-4 py-6 text-center text-muted">
-                        No channels yet. An admin can add them under Admin.
+                        No channels yet.{" "}
+                        <Link href="/admin?tab=channels" className="link">
+                          Admins can add them here.
+                        </Link>
                       </td>
                     </tr>
                   )}

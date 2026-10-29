@@ -64,7 +64,7 @@ npm run db:seed                 # optional demo data: 6 channels, 8 people, 5 pr
 npm run dev                     # http://localhost:3000
 ```
 
-With no `DATABASE_URL`, the app uses an embedded Postgres stored in `.data/pglite`, and files go to `.data/uploads`. Nothing else needs installing. With `ALLOW_DEV_LOGIN=true` the login page lets you sign in as any user without a password, which is handy for trying each role. Stop `npm run dev` before running `npm run db:seed`, because only one process can open the embedded database at a time.
+With no `DATABASE_URL`, the app uses an embedded Postgres stored in `.data/pglite` (migrated automatically on startup), and files go to `.data/uploads`. Nothing else needs installing. With `ALLOW_DEV_LOGIN=true` the login page lets you sign in as any user without a password, which is handy for trying each role. Stop `npm run dev` before running `npm run db:seed`, because only one process can open the embedded database at a time.
 
 ```bash
 npm test            # unit + database query tests (in-memory Postgres)
@@ -74,11 +74,57 @@ npm run lint
 
 ## Deploy for the team
 
-1. **Database:** any Postgres (Supabase, Neon, RDS…). Set `DATABASE_URL`. Migrations run automatically on startup (or `npm run db:migrate`).
-2. **Files:** create a Cloudflare R2 or S3 bucket and set `STORAGE_DRIVER=s3` and the `S3_*` variables. Browsers upload directly to the bucket, so large videos never pass through the app server. The bucket needs a CORS rule allowing `PUT` from your `APP_URL` with the `Content-Type` header.
-3. **Sign-in:** create a Google OAuth client with redirect URI `{APP_URL}/api/auth/google/callback`. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, and set `ALLOWED_EMAIL_DOMAINS=yourcompany.com` so colleagues can sign in. Set `ADMIN_EMAILS` for the first admins. **Set `ALLOW_DEV_LOGIN=false`.**
-4. **Alerts (optional):** `SLACK_WEBHOOK_URL` posts new versions and urgent corrections to one channel. `SMTP_*` emails each person their alerts.
-5. Host it on anything that runs Node (Vercel, Render, Railway, a VM with `npm run build && npm start`). All settings are documented in `.env.example`.
+### Netlify (step by step)
+
+The repo root has a `netlify.toml` that builds `asset-tracker/` and applies database migrations on every deploy. Netlify's servers have no lasting disk, so you need three outside services. All have free tiers.
+
+**1. Database: Neon**
+- Create a project at neon.tech and copy the **pooled** connection string (the host contains `-pooler`).
+- Or, in Netlify, add the Neon database extension, which sets `DATABASE_URL` for you.
+
+**2. File storage: Cloudflare R2**
+- Create a bucket, e.g. `creatives`.
+- Create an R2 API token with *Object Read & Write* on that bucket. Note the Access Key ID, the Secret, and your account's S3 endpoint `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`.
+- In the bucket's **Settings → CORS policy**, allow the browser to upload:
+  ```json
+  [{ "AllowedOrigins": ["https://YOUR-SITE.netlify.app"], "AllowedMethods": ["PUT", "GET", "HEAD"], "AllowedHeaders": ["Content-Type"], "MaxAgeSeconds": 3600 }]
+  ```
+
+**3. Google sign-in**
+- In Google Cloud Console: create a project, configure the **OAuth consent screen** (User type *Internal* if you have Google Workspace, otherwise *External* and set it to *In production*), then **Credentials → Create OAuth client ID → Web application**.
+- Authorised redirect URI: `https://YOUR-SITE.netlify.app/api/auth/google/callback`.
+
+**4. Netlify**
+- *Add new site → Import from Git*, pick this repo and the branch to deploy. `netlify.toml` fills in the build settings.
+- Under *Site configuration → Environment variables*, add:
+
+  | Variable | Value |
+  |---|---|
+  | `APP_URL` | `https://YOUR-SITE.netlify.app` (no trailing slash) |
+  | `APP_SECRET` | output of `openssl rand -hex 32` |
+  | `DATABASE_URL` | Neon pooled connection string |
+  | `STORAGE_DRIVER` | `s3` |
+  | `S3_ENDPOINT` | `https://<ACCOUNT_ID>.r2.cloudflarestorage.com` |
+  | `S3_REGION` | `auto` |
+  | `S3_BUCKET` | `creatives` |
+  | `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | from the R2 token |
+  | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | from Google |
+  | `ADMIN_EMAILS` | your email: you become admin on first sign-in |
+  | `ALLOWED_EMAIL_DOMAINS` | your company domain if staff use Google Workspace. **Leave empty if people use @gmail.com**, otherwise anyone with Gmail could sign in. Add people under Admin → People instead. |
+  | `ALLOW_DEV_LOGIN` | `false` |
+  | `SLACK_WEBHOOK_URL`, `SMTP_*` | optional |
+
+- Deploy. If you only learn the site URL after the first deploy, set `APP_URL`, the Google redirect URI and the R2 CORS origin to it, then redeploy.
+
+**5. First sign-in**
+- Sign in with the email in `ADMIN_EMAILS`.
+- Go to **Admin → Channels → Add Amazon, Flipkart, Blinkit…**.
+- Add colleagues under **Admin → People** (role, team, and the channels they publish to).
+- Import products under **Products → Import CSV**.
+
+### Any other host
+
+Any Node host works (Render, Railway, a VM): set the same variables, run `npm run db:migrate` on each deploy, then `npm run build && npm start`. With no `DATABASE_URL` the app falls back to the embedded database and local files, which is fine on a single server with a persistent disk.
 
 ## Built with
 

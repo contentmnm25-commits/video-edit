@@ -111,6 +111,29 @@ export async function saveChannel(_prev: unknown, formData: FormData) {
   return result;
 }
 
+const STANDARD_CHANNELS = [
+  { name: "Amazon", slug: "amazon", idLabel: "ASIN" },
+  { name: "Flipkart", slug: "flipkart", idLabel: "FSN" },
+  { name: "Blinkit", slug: "blinkit", idLabel: "Item ID" },
+  { name: "Zepto", slug: "zepto", idLabel: "Item ID" },
+  { name: "Instamart", slug: "instamart", idLabel: "Item ID" },
+  { name: "Website", slug: "website", idLabel: "Handle" },
+];
+
+/** One-click setup for a fresh workspace. Skips any channel that already exists. */
+export async function addStandardChannels() {
+  const result = await attempt(async () => {
+    const admin = await authorize("admin");
+    await db
+      .insert(channels)
+      .values(STANDARD_CHANNELS.map((c, i) => ({ ...c, sortOrder: (i + 1) * 10 })))
+      .onConflictDoNothing({ target: channels.slug });
+    await logActivity(db, { actorId: admin.id, action: "channel.created", meta: { standard: true } });
+  });
+  if (result.ok) refresh();
+  return result;
+}
+
 export async function saveWorkspaceSettings(_prev: unknown, formData: FormData) {
   const result = await attempt(async () => {
     const admin = await authorize("admin");

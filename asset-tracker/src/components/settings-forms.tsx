@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import { savePreferences } from "@/app/actions/me";
-import { inviteUser, saveChannel, saveWorkspaceSettings, updateUser } from "@/app/actions/admin";
+import { addStandardChannels, inviteUser, saveChannel, saveWorkspaceSettings, updateUser } from "@/app/actions/admin";
 import { FormError, Modal, useCloseModal } from "@/components/modal";
 import type { Role, Team } from "@/db/schema";
 import { ROLE_HELP, ROLE_LABEL, TEAM_LABEL } from "@/lib/domain";
@@ -263,5 +263,14 @@ export function WorkspaceForm({
         <Saved state={state} />
       </div>
     </form>
+  );
+}
+
+export function StandardChannelsButton() {
+  const [pending, start] = useTransition();
+  return (
+    <button className="btn-primary" disabled={pending} onClick={() => start(async () => void (await addStandardChannels()))}>
+      {pending && <Loader2 className="size-4 animate-spin" />} Add Amazon, Flipkart, Blinkit, Zepto, Instamart & Website
+    </button>
   );
 }

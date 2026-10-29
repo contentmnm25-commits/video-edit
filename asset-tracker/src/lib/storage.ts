@@ -108,6 +108,10 @@ function s3Client() {
     region: process.env.S3_REGION || "auto",
     endpoint: process.env.S3_ENDPOINT || undefined,
     forcePathStyle: Boolean(process.env.S3_ENDPOINT),
+    // The SDK otherwise signs a CRC32 checksum into presigned PUT URLs, which a
+    // browser upload can't satisfy (R2 rejects it). Only send checksums when required.
+    requestChecksumCalculation: "WHEN_REQUIRED",
+    responseChecksumValidation: "WHEN_REQUIRED",
     credentials: {
       accessKeyId: process.env.S3_ACCESS_KEY_ID ?? "",
       secretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? "",

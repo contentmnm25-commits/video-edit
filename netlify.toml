@@ -1,0 +1,10 @@
+# Netlify deploys the Creative Tracker app that lives in asset-tracker/.
+[build]
+  base = "asset-tracker"
+  # Apply database migrations to DATABASE_URL, then build. Netlify detects
+  # Next.js and installs its Next.js runtime automatically.
+  command = "npm run db:migrate && npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"

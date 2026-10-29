@@ -2,7 +2,7 @@ import Link from "next/link";
 import { asc } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { ChannelForm, EditUserButton, InviteUserButton, WorkspaceForm } from "@/components/settings-forms";
+import { ChannelForm, EditUserButton, InviteUserButton, StandardChannelsButton, WorkspaceForm } from "@/components/settings-forms";
 import { Avatar, cx, PageHeader, Pill } from "@/components/ui";
 import { requireAdminPage } from "@/lib/auth";
 import { ROLE_LABEL, TEAM_LABEL, timeAgo } from "@/lib/domain";
@@ -117,6 +117,13 @@ export default async function AdminPage(props: PageProps<"/admin">) {
 
       {tab === "channels" && (
         <div className="space-y-6">
+          {channels.length === 0 && (
+            <section className="card p-5">
+              <h2 className="mb-1 text-sm font-semibold">Start with the usual channels</h2>
+              <p className="mb-4 text-sm text-muted">You can rename, reorder or switch any of them off afterwards.</p>
+              <StandardChannelsButton />
+            </section>
+          )}
           <section className="card p-5">
             <h2 className="mb-1 text-sm font-semibold">Add a channel</h2>
             <p className="mb-4 text-sm text-muted">Any place creatives go live: marketplaces, quick commerce apps, your website, social.</p>

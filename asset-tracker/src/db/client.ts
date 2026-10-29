@@ -23,7 +23,7 @@ export function getDb(): Db {
   if (holder.db) return holder.db;
   const url = process.env.DATABASE_URL;
   if (url) {
-    const pool = new Pool({ connectionString: url, max: Number(process.env.DB_POOL_MAX ?? 10) });
+    const pool = new Pool({ connectionString: url, max: Number(process.env.DB_POOL_MAX ?? 5) });
     holder.db = drizzlePg(pool, { schema });
     holder.kind = "pg";
   } else {
