@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --color-canvas: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-ink: #111827;
+  --color-muted: #6b7280;
+  --color-line: #e5e7eb;
+  --color-accent: #4338ca;
+  --color-accent-soft: #eef2ff;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* Shared control styles so every form looks the same without a component library.
+   Declared as utilities so they can be composed with @apply and used with variants. */
+@utility input {
+  @apply block w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink shadow-xs outline-none transition placeholder:text-gray-400 focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:bg-gray-50;
+}
+@utility label {
+  @apply mb-1 block text-xs font-medium text-gray-700;
+}
+@utility btn {
+  @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap transition disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-accent text-white shadow-xs hover:bg-indigo-800;
+}
+@utility btn-secondary {
+  @apply btn border border-line bg-white text-ink shadow-xs hover:bg-gray-50;
+}
+@utility btn-ghost {
+  @apply btn text-gray-600 hover:bg-gray-100 hover:text-ink;
+}
+@utility btn-danger {
+  @apply btn border border-red-200 bg-white text-red-700 hover:bg-red-50;
+}
+@utility btn-success {
+  @apply btn bg-emerald-600 text-white shadow-xs hover:bg-emerald-700;
+}
+@utility btn-sm {
+  @apply px-2.5 py-1.5 text-xs;
+}
+@utility card {
+  @apply rounded-xl border border-line bg-surface shadow-xs;
+}
+@utility link {
+  @apply font-medium text-accent hover:underline;
+}
+
+select.input {
+  padding-right: 2rem;
+}
